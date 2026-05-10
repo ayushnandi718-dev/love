@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>For You, My Love</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Cinzel:wght@400;600&family=Dancing+Script:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --rose: #c9536a;
+    --blush: #f2c4ce;
+    --deep: #1a0a0f;
+    --gold: #d4a853;
+    --cream: #fdf6f0;
+    --mist: rgba(255,255,255,0.07);
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--deep);
+    color: var(--cream);
+    font-family: 'Cormorant Garamond', serif;
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* Custom cursor */
+  .cursor {
+    position: fixed;
+    width: 10px; height: 10px;
+    background: var(--rose);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%,-50%);
+    transition: transform 0.1s ease;
+    mix-blend-mode: screen;
+  }
+  .cursor-trail {
+    position: fixed;
+    width: 30px; height: 30px;
+    border: 1px solid rgba(201,83,106,0.4);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9998;
+    transform: translate(-50%,-50%);
+    transition: all 0.15s ease;
+  }
+
+  /* Stars canvas */
+  #stars { position: fixed; top:0; left:0; width:100%; height:100%; z-index:0; pointer-events:none; }
+
+  /* Floating petals */
+  .petal-container { position: fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:1; overflow:hidden; }
+  .petal {
+    position: absolute;
+    top: -40px;
+    font-size: 18px;
+    opacity: 0;
+    animation: petalFall linear infinite;
+  }
+  @keyframes petalFall {
+    0%   { transform: translateY(0) rotate(0deg) translateX(0); opacity: 0; }
+    10%  { opacity: 0.8; }
+    90%  { opacity: 0.6; }
+    100% { transform: translateY(105vh) rotate(720deg) translateX(80px); opacity: 0; }
+  }
+
+  /* ── HERO ── */
+  .hero {
+    position: relative;
+    z-index: 2;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 2rem;
+  }
+
+  .hero-eyebrow {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(0.6rem, 1.5vw, 0.85rem);
+    letter-spacing: 0.4em;
+    color: var(--gold);
+    opacity: 0;
+    animation: fadeUp 1.2s ease 0.5s forwards;
+    text-transform: uppercase;
+  }
+
+  .hero-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(3.5rem, 10vw, 9rem);
+    font-weight: 300;
+    font-style: italic;
+    line-height: 1;
+    color: var(--cream);
+    opacity: 0;
+    animation: fadeUp 1.4s ease 0.9s forwards;
+    text-shadow: 0 0 80px rgba(201,83,106,0.3);
+  }
+  .hero-title span { color: var(--rose); }
+
+  .hero-sub {
+    font-size: clamp(1rem, 2.5vw, 1.4rem);
+    font-weight: 300;
+    font-style: italic;
+    color: var(--blush);
+    margin-top: 1.5rem;
+    max-width: 500px;
+    line-height: 1.8;
+    opacity: 0;
+    animation: fadeUp 1.4s ease 1.3s forwards;
+  }
+
+  .hero-line {
+    width: 1px;
+    height: 80px;
+    background: linear-gradient(to bottom, var(--rose), transparent);
+    margin: 2.5rem auto 0;
+    opacity: 0;
+    animation: fadeIn 1.5s ease 2s forwards;
+  }
+
+  .scroll-hint {
+    font-family: 'Cinzel', serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.3em;
+    color: var(--gold);
+    opacity: 0;
+    animation: fadeIn 1.5s ease 2.5s forwards, bob 2s ease-in-out 3s infinite;
+    margin-top: 0.5rem;
+    text-transform: uppercase;
+  }
+
+  @keyframes bob { 0%,100%{transform:translateY(0)} 50%{transform:translateY(6px)} }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+
+  /* ── SECTIONS ── */
+  section { position: relative; z-index: 2; padding: 6rem 2rem; }
+
+  .section-inner {
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: center;
+  }
+
+  .section-tag {
+    font-family: 'Cinzel', serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.4em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+    display: block;
+  }
+
+  .section-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2.2rem, 5vw, 4rem);
+    font-weight: 300;
+    font-style: italic;
+    line-height: 1.2;
+    margin-bottom: 2rem;
+  }
+
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    justify-content: center;
+    margin: 2.5rem auto;
+  }
+  .divider-line { flex: 1; max-width: 120px; height: 1px; background: linear-gradient(to right, transparent, var(--rose)); }
+  .divider-line.right { background: linear-gradient(to left, transparent, var(--rose)); }
+  .divider-heart { color: var(--rose); font-size: 1rem; animation: heartbeat 1.5s ease-in-out infinite; }
+  @keyframes heartbeat { 0%,100%{transform:scale(1)} 50%{transform:scale(1.3)} }
+
+  /* ── REASONS ── */
+  .reasons-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.5rem;
+    margin-top: 3rem;
+    text-align: left;
+  }
+  .reason-card {
+    background: var(--mist);
+    border: 1px solid rgba(201,83,106,0.15);
+    border-radius: 4px;
+    padding: 2rem 1.5rem;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.3s ease, border-color 0.3s ease;
+  }
+  .reason-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(to right, var(--rose), var(--gold));
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.4s ease;
+  }
+  .reason-card:hover { transform: translateY(-4px); border-color: rgba(201,83,106,0.4); }
+  .reason-card:hover::before { transform: scaleX(1); }
+  .reason-num {
+    font-family: 'Cinzel', serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.3em;
+    color: var(--rose);
+    display: block;
+    margin-bottom: 0.8rem;
+  }
+  .reason-text {
+    font-size: 1.1rem;
+    font-style: italic;
+    font-weight: 300;
+    line-height: 1.7;
+    color: var(--blush);
+  }
+
+  /* ── POEM ── */
+  .poem-section { background: linear-gradient(to bottom, transparent, rgba(201,83,106,0.05), transparent); }
+  .poem {
+    font-size: clamp(1.05rem, 2.5vw, 1.4rem);
+    font-style: italic;
+    font-weight: 300;
+    line-height: 2.4;
+    color: var(--cream);
+  }
+  .poem em { color: var(--rose); font-style: normal; }
+
+  /* ── TIMELINE ── */
+  .timeline { position: relative; margin-top: 3rem; }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 0; bottom: 0;
+    width: 1px;
+    background: linear-gradient(to bottom, transparent, var(--rose), transparent);
+    transform: translateX(-50%);
+  }
+  .tl-item {
+    display: flex;
+    justify-content: flex-end;
+    padding-right: calc(50% + 2rem);
+    margin-bottom: 3rem;
+    text-align: right;
+  }
+  .tl-item:nth-child(even) {
+    justify-content: flex-start;
+    padding-right: 0;
+    padding-left: calc(50% + 2rem);
+    text-align: left;
+  }
+  .tl-dot {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 12px; height: 12px;
+    background: var(--rose);
+    border-radius: 50%;
+    border: 2px solid var(--deep);
+    box-shadow: 0 0 10px var(--rose);
+  }
+  .tl-content { max-width: 280px; }
+  .tl-date {
+    font-family: 'Cinzel', serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.3em;
+    color: var(--gold);
+    display: block;
+    margin-bottom: 0.4rem;
+  }
+  .tl-title {
+    font-size: 1.2rem;
+    font-style: italic;
+    color: var(--cream);
+    margin-bottom: 0.4rem;
+  }
+  .tl-desc { font-size: 0.95rem; color: rgba(242,196,206,0.7); line-height: 1.6; }
+
+  /* ── LETTER ── */
+  .letter-box {
+    background: rgba(253,246,240,0.04);
+    border: 1px solid rgba(212,168,83,0.2);
+    border-radius: 4px;
+    padding: 3.5rem;
+    text-align: left;
+    position: relative;
+    max-width: 620px;
+    margin: 2rem auto 0;
+  }
+  .letter-box::after {
+    content: '❧';
+    position: absolute;
+    bottom: 1.5rem;
+    right: 2rem;
+    color: var(--gold);
+    font-size: 1.5rem;
+    opacity: 0.4;
+  }
+  .letter-body {
+    font-size: 1.1rem;
+    font-style: italic;
+    line-height: 2;
+    color: var(--blush);
+  }
+  .letter-sign {
+    font-family: 'Dancing Script', cursive;
+    font-size: 2rem;
+    color: var(--rose);
+    margin-top: 2rem;
+    display: block;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    padding: 4rem 2rem;
+    border-top: 1px solid rgba(201,83,106,0.1);
+  }
+  .footer-heart {
+    font-size: 3rem;
+    display: block;
+    margin-bottom: 1rem;
+    animation: heartbeat 1.5s ease-in-out infinite;
+  }
+  .footer-text {
+    font-family: 'Dancing Script', cursive;
+    font-size: 1.5rem;
+    color: var(--gold);
+  }
+
+  /* ── REVEAL ANIMATION ── */
+  .reveal {
+    opacity: 0;
+    transform: translateY(40px);
+    transition: opacity 0.9s ease, transform 0.9s ease;
+  }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+
+  /* ── MUSIC PLAYER ── */
+  .music-btn {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    z-index: 100;
+    background: rgba(201,83,106,0.15);
+    border: 1px solid rgba(201,83,106,0.4);
+    color: var(--rose);
+    width: 52px; height: 52px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1.3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+  }
+  .music-btn:hover { background: rgba(201,83,106,0.3); transform: scale(1.1); }
+
+  @media (max-width: 600px) {
+    .timeline::before { left: 16px; }
+    .tl-item, .tl-item:nth-child(even) {
+      justify-content: flex-start;
+      padding-left: 3rem;
+      padding-right: 0;
+      text-align: left;
+    }
+    .tl-dot { left: 16px; }
+    .letter-box { padding: 2rem 1.5rem; }
+    .reasons-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-trail" id="cursorTrail"></div>
+<canvas id="stars"></canvas>
+
+<div class="petal-container" id="petals"></div>
+
+<!-- MUSIC -->
+<button class="music-btn" id="musicBtn" title="Toggle ambient music">♪</button>
+
+<!-- HERO -->
+<section class="hero">
+  <span class="hero-eyebrow">A love letter, to you</span>
+  <h1 class="hero-title">You are my<br><span>everything</span></h1>
+  <p class="hero-sub">Every star in the sky, every breath I take — it all leads back to you.</p>
+  <div class="hero-line"></div>
+  <span class="scroll-hint">Scroll to explore ↓</span>
+</section>
+
+<!-- REASONS -->
+<section>
+  <div class="section-inner reveal">
+    <span class="section-tag">Chapter I</span>
+    <h2 class="section-title">Reasons I love you</h2>
+    <div class="divider">
+      <div class="divider-line"></div>
+      <span class="divider-heart">♥</span>
+      <div class="divider-line right"></div>
+    </div>
+    <div class="reasons-grid">
+      <div class="reason-card">
+        <span class="reason-num">01</span>
+        <p class="reason-text">The way your eyes light up when you laugh — it rewrites every sad song I ever knew.</p>
+      </div>
+      <div class="reason-card">
+        <span class="reason-num">02</span>
+        <p class="reason-text">You make even ordinary moments feel like scenes from a story worth telling forever.</p>
+      </div>
+      <div class="reason-card">
+        <span class="reason-num">03</span>
+        <p class="reason-text">Your kindness — the quiet, steady kind that doesn't announce itself — undoes me.</p>
+      </div>
+      <div class="reason-card">
+        <span class="reason-num">04</span>
+        <p class="reason-text">The way you hold my hand like it's something precious. I feel it every single time.</p>
+      </div>
+      <div class="reason-card">
+        <span class="reason-num">05</span>
+        <p class="reason-text">You are home. Not a place — a feeling. And I never want to leave.</p>
+      </div>
+      <div class="reason-card">
+        <span class="reason-num">06</span>
+        <p class="reason-text">Loving you is the most natural, most certain thing I have ever done.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- POEM -->
+<section class="poem-section">
+  <div class="section-inner reveal">
+    <span class="section-tag">Chapter II</span>
+    <h2 class="section-title">A poem for you</h2>
+    <div class="divider">
+      <div class="divider-line"></div>
+      <span class="divider-heart">♥</span>
+      <div class="divider-line right"></div>
+    </div>
+    <p class="poem">
+      In the soft hush of a thousand dawns,<br>
+      I find your name <em>written in light.</em><br><br>
+      You are the quiet between two heartbeats,<br>
+      the warmth in the middle of the night.<br><br>
+      If the universe were a letter,<br>
+      <em>you would be every word.</em><br><br>
+      And if I had a thousand lifetimes,<br>
+      I would spend them all — <em>choosing you.</em>
+    </p>
+  </div>
+</section>
+
+<!-- TIMELINE -->
+<section>
+  <div class="section-inner reveal">
+    <span class="section-tag">Chapter III</span>
+    <h2 class="section-title">Our story so far</h2>
+    <div class="divider">
+      <div class="divider-line"></div>
+      <span class="divider-heart">♥</span>
+      <div class="divider-line right"></div>
+    </div>
+  </div>
+  <div class="timeline reveal" style="max-width:700px;margin:0 auto;position:relative;">
+    <div class="tl-item">
+      <div class="tl-content">
+        <span class="tl-date">The beginning</span>
+        <p class="tl-title">The day we met</p>
+        <p class="tl-desc">I didn't know it then, but the universe was quietly shifting everything into place.</p>
+      </div>
+      <div class="tl-dot" style="top:8px"></div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-content">
+        <span class="tl-date">A little later</span>
+        <p class="tl-title">Our first laugh</p>
+        <p class="tl-desc">Something clicked. A warmth I hadn't expected, and couldn't stop thinking about.</p>
+      </div>
+      <div class="tl-dot" style="top:8px"></div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-content">
+        <span class="tl-date">The turn</span>
+        <p class="tl-title">When I knew</p>
+        <p class="tl-desc">There was a quiet moment — nothing dramatic — and I just knew. You were it for me.</p>
+      </div>
+      <div class="tl-dot" style="top:8px"></div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-content">
+        <span class="tl-date">Right now</span>
+        <p class="tl-title">Today & always</p>
+        <p class="tl-desc">Every day with you is a gift. And I intend to cherish every single one.</p>
+      </div>
+      <div class="tl-dot" style="top:8px"></div>
+    </div>
+  </div>
+</section>
+
+<!-- LETTER -->
+<section>
+  <div class="section-inner reveal">
+    <span class="section-tag">Chapter IV</span>
+    <h2 class="section-title">From my heart to yours</h2>
+    <div class="divider">
+      <div class="divider-line"></div>
+      <span class="divider-heart">♥</span>
+      <div class="divider-line right"></div>
+    </div>
+    <div class="letter-box">
+      <p class="letter-body">
+        My love,<br><br>
+        I don't always have the right words. But I want you to know — in the quiet moments, in the chaos, in every ordinary Tuesday — I am grateful for you. Grateful that you exist, that our paths crossed, that you chose me just as I choose you, every single day.<br><br>
+        You make me want to be softer, braver, better. Not because you ask me to, but because being around you makes it feel possible.<br><br>
+        This little corner of the internet is mine — just for you — to say what I sometimes forget to say out loud:<br><br>
+        <em>I love you. More than words. More than stars. More than all of this.</em>
+      </p>
+      <span class="letter-sign">Forever yours ♥</span>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <span class="footer-heart">♥</span>
+  <p class="footer-text">Made with love, just for you.</p>
+</footer>
+
+<script>
+// ── CURSOR ──
+const cursor = document.getElementById('cursor');
+const trail = document.getElementById('cursorTrail');
+let mx=0,my=0,tx=0,ty=0;
+document.addEventListener('mousemove',e=>{
+  mx=e.clientX; my=e.clientY;
+  cursor.style.left=mx+'px';
+  cursor.style.top=my+'px';
+});
+function animateTrail(){
+  tx+=(mx-tx)*0.12; ty+=(my-ty)*0.12;
+  trail.style.left=tx+'px'; trail.style.top=ty+'px';
+  requestAnimationFrame(animateTrail);
+}
+animateTrail();
+
+// ── STARS ──
+const canvas = document.getElementById('stars');
+const ctx = canvas.getContext('2d');
+let stars=[];
+function resize(){
+  canvas.width=window.innerWidth;
+  canvas.height=window.innerHeight;
+  stars=Array.from({length:180},()=>({
+    x:Math.random()*canvas.width,
+    y:Math.random()*canvas.height,
+    r:Math.random()*1.4+0.2,
+    a:Math.random(),
+    speed:Math.random()*0.004+0.001
+  }));
+}
+resize();
+window.addEventListener('resize',resize);
+function drawStars(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  stars.forEach(s=>{
+    s.a+=s.speed;
+    const alpha=0.3+0.5*Math.abs(Math.sin(s.a));
+    ctx.beginPath();
+    ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+    ctx.fillStyle=`rgba(255,245,235,${alpha})`;
+    ctx.fill();
+  });
+  requestAnimationFrame(drawStars);
+}
+drawStars();
+
+// ── PETALS ──
+const petalContainer = document.getElementById('petals');
+const petalSymbols = ['🌸','✿','❀','🌺','❁'];
+for(let i=0;i<22;i++){
+  const p=document.createElement('span');
+  p.className='petal';
+  p.textContent=petalSymbols[Math.floor(Math.random()*petalSymbols.length)];
+  p.style.left=Math.random()*100+'%';
+  p.style.fontSize=(Math.random()*14+10)+'px';
+  p.style.animationDuration=(Math.random()*12+8)+'s';
+  p.style.animationDelay=(Math.random()*15)+'s';
+  petalContainer.appendChild(p);
+}
+
+// ── SCROLL REVEAL ──
+const revealEls=document.querySelectorAll('.reveal');
+const io=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');}});
+},{threshold:0.12});
+revealEls.forEach(el=>io.observe(el));
+
+// ── AMBIENT MUSIC (Web Audio API tone) ──
+let audioCtx=null, playing=false;
+const musicBtn=document.getElementById('musicBtn');
+const notes=[261.6,293.7,329.6,349.2,392,440,493.9];
+let noteInterval=null;
+
+function playAmbient(){
+  if(!audioCtx) audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+  function playNote(){
+    const osc=audioCtx.createOscillator();
+    const gain=audioCtx.createGain();
+    const freq=notes[Math.floor(Math.random()*notes.length)];
+    osc.type='sine';
+    osc.frequency.setValueAtTime(freq,audioCtx.currentTime);
+    osc.frequency.setValueAtTime(freq*2,audioCtx.currentTime+0.01);
+    gain.gain.setValueAtTime(0,audioCtx.currentTime);
+    gain.gain.linearRampToValueAtTime(0.04,audioCtx.currentTime+0.3);
+    gain.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+2.5);
+    osc.connect(gain); gain.connect(audioCtx.destination);
+    osc.start(); osc.stop(audioCtx.currentTime+2.6);
+  }
+  noteInterval=setInterval(playNote,1400);
+  playNote();
+}
+function stopAmbient(){ clearInterval(noteInterval); }
+
+musicBtn.addEventListener('click',()=>{
+  playing=!playing;
+  musicBtn.textContent=playing?'♬':'♪';
+  if(playing) playAmbient(); else stopAmbient();
+});
+
+// ── CLICK HEARTS ──
+document.addEventListener('click',e=>{
+  const h=document.createElement('div');
+  h.textContent='♥';
+  h.style.cssText=`position:fixed;left:${e.clientX}px;top:${e.clientY}px;
+    color:var(--rose);font-size:1.2rem;pointer-events:none;z-index:9999;
+    animation:floatHeart 1.2s ease forwards;transform:translate(-50%,-50%);`;
+  document.body.appendChild(h);
+  setTimeout(()=>h.remove(),1200);
+});
+
+// inject float keyframe
+const style=document.createElement('style');
+style.textContent=`@keyframes floatHeart{0%{opacity:1;transform:translate(-50%,-50%) scale(0.5)}
+  50%{opacity:1;transform:translate(-50%,-120%) scale(1.2)}
+  100%{opacity:0;transform:translate(-50%,-200%) scale(0.8)}}`;
+document.head.appendChild(style);
+</script>
+</body>
+</html>
